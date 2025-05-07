@@ -5,10 +5,10 @@
   "main": "dist/index.js",
   "bin": "dist/index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node index.js",
     "build:ncc": "ncc build app.js -o dist",
-    "build:pkg": "pkg ./dist/index.js node18-linux",
-    "build": "npm run build:ncc && npm run build:pkg"
+    "build:pkg": "pkg ./dist/index.js --targets \"node18-linux,node18-win\"",
+    "build": "pnpm run build:ncc && pnpm run build:pkg"
   },
   "author": "BLxcwg666",
   "license": "AGPL-v3-or-later",
@@ -22,10 +22,5 @@
     "moment-timezone": "^0.5.48",
     "node-schedule": "^2.1.1",
     "user-agents": "^1.1.532"
-  },
-  "pkg": {
-    "scripts": "dist/**/*.js",
-    "assets": "dist/**/*.json",
-    "outputPath": "build"
   }
 }
