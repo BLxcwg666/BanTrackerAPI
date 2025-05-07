@@ -28,3 +28,5 @@ router.get("/", (req, res) => {
     res.set("Cache-Control", "max-age=3, must-revalidate");
     res.json({ wdr: message.trim() });
 });
+
+module.exports = router;
