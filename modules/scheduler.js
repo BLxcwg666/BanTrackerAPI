@@ -27,6 +27,7 @@ function pushBan(isWatchdog, number) {
 
 const getBanData = async () => {
     try {
+        // 这个 API 不太朋友，在我的 Azure HK 上被返回 403
         const res = await axios.get("https://api.plancke.io/hypixel/v1/punishmentStats", {
             timeout: 3000,
             headers: {
