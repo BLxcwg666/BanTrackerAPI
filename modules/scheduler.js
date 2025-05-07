@@ -65,7 +65,7 @@ const getBanData = async () => {
     }
 };
 
-schedule.scheduleJob("*/6 * * * * *", getBanData);
+schedule.scheduleJob("*/3 * * * * *", getBanData);
 schedule.scheduleJob("*/3 * * * * *", () => {
     staffHalfHourCalc.remove();
     staff.last_half_hour = staffHalfHourCalc.getCount();
