@@ -2,79 +2,51 @@
 
 const express = require("express");
 const app = express();
-const port = 8963;
-const timeSince = require("./timeCalc");
-const { getData, getBanData } = require("./scheduler");
+const cluster = require('cluster');
+const moment = require('moment-timezone');
+const config = require('./config');
+const { getBanData } = require("./modules/scheduler");
+const routes = require('./modules/router');
+const numCPUs = require('os').cpus().length;
+const compression = require('compression');
+const log = require('./utils/logger');
 
-app.get("/", (req, res) => {
-    const { staff, watchdog, banHistory, lastUpdated } = getData();
-    const response = {
-        staff,
-        watchdog,
-        banHistory,
-        lastUpdated: {
-            timestamp: lastUpdated,
-            formated: new Date(lastUpdated).toLocaleTimeString("zh-CN", { hour12: false }),
-        },
-    };
-    res.set("Cache-Control", "max-age=3, must-revalidate");
-    res.json(response);
-});
+const host = config.API_HOST;
+const port = config.API_PORT;
 
-app.get("/wdr", (req, res) => {
-    const { staff, watchdog, banHistory, lastUpdated } = getData();
-    let message = `🐕🐕 Hypixel Ban Tracker 👮‍👮‍
-[🐕] 过去一分钟有 ${watchdog.last_minute} 人被狗咬了
-[🐕‍] 狗在过去二十四小时内已封禁 ${watchdog.last_day} 人,
-
-[👮‍] 过去的半小时有 ${staff.last_half_hour} 人被逮捕了
-[👮‍] 客服在过去二十四小时内已封禁 ${staff.last_day} 人,
-
-上次更新: ${new Date(lastUpdated).toLocaleTimeString("zh-CN", { hour12: false })} ${timeSince(lastUpdated)}
-`;
-
-    if (banHistory.length === 0) {
-        message += "无最近封禁";
-    } else {
-        message += "最近封禁记录:\n";
-        for (const ban of banHistory) {
-            message += `[${ban.watchdog ? "🐕" : "👮"}] [${ban.formated}] banned ${ban.number} player.\n`;
-        }
-    }
-
-    res.set("Cache-Control", "max-age=3, must-revalidate");
-    res.json({ wdr: message.trim() });
-});
-
-app.get("/wdr/raw", (req, res) => {
-    const { staff, watchdog, banHistory, lastUpdated } = getData();
-    let message = `🐕🐕 Hypixel Ban Tracker 👮‍👮‍
-[🐕] 过去一分钟有 ${watchdog.last_minute} 人被狗咬了
-[🐕‍] 狗在过去二十四小时内已封禁 ${watchdog.last_day} 人,
-
-[👮‍] 过去的半小时有 ${staff.last_half_hour} 人被逮捕了
-[👮‍] 客服在过去二十四小时内已封禁 ${staff.last_day} 人,
-
-上次更新: ${new Date(lastUpdated).toLocaleTimeString("zh-CN", { hour12: false })} ${timeSince(lastUpdated)}
-`;
-
-    if (banHistory.length === 0) {
-        message += "无最近封禁";
-    } else {
-        message += "最近封禁记录:\n";
-        for (const ban of banHistory) {
-            message += `[${ban.watchdog ? "🐕" : "👮"}] [${ban.formated}] banned ${ban.number} player.\n`;
-        }
-    }
-
-    res.set("Content-Type", "text/plain; charset=utf-8");
-    res.set("Cache-Control", "max-age=3, must-revalidate");
-    res.send(message.trim());
-});
+global.version = "1.0.0";
+global.time = function () {
+    return moment().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
+}
 
 // 启动初始化任务
 getBanData();
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+if (cluster.isPrimary) {
+    // 复制线程
+    for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
+    }
+
+    // 启动 API
+    const app = express();
+
+    app.use(compression());
+    app.use(express.json());
+    app.use((req, res, next) => {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Allow-Headers', 'Content-Type');
+        next();
+    });
+
+    app.use('/', routes);
+    app.listen(port, host, async () => {
+        log.info(`API Started at port ${port} on ${host}`, "APP")
+    });
+    cluster.on('exit', (worker, code, signal) => {
+        log.warn(`线程 PID ${worker.process.pid} 已退出，代码：${code}`, "APP")
+        log.info(`尝试启动新线程`, "APP")
+        cluster.fork(); // 重新启动子进程
+    });
+}
