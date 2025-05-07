@@ -1,5 +1,7 @@
 const express = require("express");
 const { getData } = require("./../../modules/scheduler");
+const timeCalc = require("./../../modules/timeCalc");
+
 
 const router = express.Router();
 
@@ -12,7 +14,7 @@ router.get("/", (req, res) => {
 [👮‍] 过去的半小时有 ${staff.last_half_hour} 人被逮捕了
 [👮‍] 客服在过去二十四小时内已封禁 ${staff.last_day} 人,
 
-上次更新: ${new Date(lastUpdated).toLocaleTimeString("zh-CN", { hour12: false })} ${timeSince(lastUpdated)}
+上次更新: ${new Date(lastUpdated).toLocaleTimeString("zh-CN", { hour12: false })} ${timeCalc(lastUpdated)}
 `;
 
     if (banHistory.length === 0) {
