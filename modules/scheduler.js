@@ -2,6 +2,7 @@ const schedule = require("node-schedule");
 const axios = require("axios");
 const UserAgent = require("user-agents");
 const NumberManager = require("./numManager");
+const log = require("./../utils/logger");
 
 const staffHalfHourCalc = new NumberManager();
 
@@ -61,7 +62,7 @@ const getBanData = async () => {
         watchdog.total = data.watchdog_total;
         lastUpdated = Date.now();
     } catch (err) {
-        console.error("Fetch error:", err.message);
+        log.err(err.message, 'SCHEDULER');
     }
 };
 
