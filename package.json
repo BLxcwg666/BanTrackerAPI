@@ -1,0 +1,11 @@
+{
+  "name": "bantrackerapi",
+  "version": "1.0.0",
+  "description": "A Hypixel Ban Tracker API For Ban Tracker Opai Client™ Extension",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "YourName",
+  "license": "AGPL-v3-or-later"
+}
