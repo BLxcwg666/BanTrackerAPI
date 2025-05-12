@@ -5,11 +5,13 @@ const NumberManager = require("./numManager");
 const log = require("./../utils/logger");
 
 const staffHalfHourCalc = new NumberManager();
+const watchdogHalfHourCalc = new NumberManager();
+const staffLastMinuteCalc = new NumberManager();
 
 let banHistory = [];
 let lastUpdated = Date.now();
-let watchdog = { last_minute: 0, last_day: 0, total: -1 };
-let staff = { last_half_hour: 0, last_day: 0, total: -1 };
+let watchdog = { last_minute: 0, last_half_hour: 0, last_day: 0, total: -1 };
+let staff = { last_minute: 0, last_half_hour: 0, last_day: 0, total: -1 };
 
 function pushBan(isWatchdog, number) {
     const now = Date.now();
@@ -53,9 +55,14 @@ const getBanData = async () => {
         const wdiff = data.watchdog_total - watchdog.total;
         const sdiff = data.staff_total - staff.total;
 
-        if (wdiff > 0) pushBan(true, wdiff);
+        if (wdiff > 0) {
+            pushBan(true, wdiff);
+            watchdogHalfHourCalc.add(wdiff);
+        }
+
         if (sdiff > 0) {
             pushBan(false, sdiff);
+            staffLastMinuteCalc.add(sdiff);
             staffHalfHourCalc.add(sdiff);
         }
 
@@ -70,7 +77,11 @@ const getBanData = async () => {
 schedule.scheduleJob("*/3 * * * * *", getBanData);
 schedule.scheduleJob("*/3 * * * * *", () => {
     staffHalfHourCalc.remove();
+    staffLastMinuteCalc.remove();
+    watchdogHalfHourCalc.remove();
+    staff.last_minute = staffLastMinuteCalc.getCount();
     staff.last_half_hour = staffHalfHourCalc.getCount();
+    watchdog.last_half_hour = watchdogHalfHourCalc.getCount();
 });
 
 module.exports = {

@@ -1,6 +1,7 @@
 class numManager {
-    constructor() {
+    constructor(removeTime = 30) {
         this.numbers = [];
+        this.removeTime = removeTime;
     }
 
     add(number) {
@@ -10,7 +11,8 @@ class numManager {
 
     remove() {
         const now = Date.now();
-        this.numbers = this.numbers.filter(item => item.ctime >= now - 30 * 60 * 1000);
+        const threshold = now - this.removeTime * 60 * 1000;
+        this.numbers = this.numbers.filter(item => item.ctime >= threshold);
     }
 
     getCount() {

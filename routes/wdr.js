@@ -8,8 +8,10 @@ router.get("/", (req, res) => {
     const { staff, watchdog, banHistory, lastUpdated } = getData();
     let message = `🐕🐕 Hypixel Ban Tracker 👮‍👮‍
 [🐕] 过去一分钟有 ${watchdog.last_minute} 人被狗咬了
+[🐕] 过去半小时有 ${watchdog.last_half_hour} 人被狗咬了
 [🐕‍] 狗在过去二十四小时内已封禁 ${watchdog.last_day} 人,
 
+[👮‍] 过去一分钟有 ${staff.last_minute} 人被逮捕了
 [👮‍] 过去的半小时有 ${staff.last_half_hour} 人被逮捕了
 [👮‍] 客服在过去二十四小时内已封禁 ${staff.last_day} 人,
 
