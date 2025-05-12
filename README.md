@@ -1,5 +1,5 @@
 # BanTrackerAPI
-A Hypixel Ban Tracker API For Ban Tracker Opai Client™ Extension
+A Hypixel Ban Tracker API By Reverse Proxied Hypixel Public API
 
 ## Run
 `pnpm i`&&`pnpm start`
