@@ -4,9 +4,9 @@ const UserAgent = require("user-agents");
 const NumberManager = require("./numManager");
 const log = require("./../utils/logger");
 
-const staffHalfHourCalc = new NumberManager();
-const watchdogHalfHourCalc = new NumberManager();
-const staffLastMinuteCalc = new NumberManager();
+const staffHalfHourCalc = new NumberManager(30);
+const watchdogHalfHourCalc = new NumberManager(30);
+const staffLastMinuteCalc = new NumberManager(1);
 
 let banHistory = [];
 let lastUpdated = Date.now();
