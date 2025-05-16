@@ -18,7 +18,7 @@ function pushBan(isWatchdog, number) {
     const formated = new Date(now).toLocaleTimeString("zh-CN", { hour12: false });
 
     banHistory.unshift({
-        time: now,
+        time: now/1000,
         formated,
         watchdog: isWatchdog,
         number,

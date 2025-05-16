@@ -10,7 +10,7 @@ router.get("/", (req, res) => {
         watchdog,
         banHistory,
         lastUpdated: {
-            timestamp: lastUpdated,
+            timestamp: lastUpdated/1000,
             formated: new Date(lastUpdated).toLocaleTimeString("zh-CN", { hour12: false }),
         },
     };
